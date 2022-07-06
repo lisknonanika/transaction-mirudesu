@@ -65,7 +65,7 @@
 							{
 								selector: 'node',
 								style: {
-									'label': 'data(id)',
+									'label': 'data(label)',
 									'color': '#0c0cef',
 									'width': 50,
 									'height': 50
@@ -92,7 +92,7 @@
 				layout.run();
 
 				cy.on('tap', 'node', function (evt) {
-					draw(evt.target.json().data['address']);
+					draw(evt.target.json().data['id']);
 				});
 
 				cy.on('tap', 'edge', function (evt) {
@@ -113,13 +113,13 @@
 				for (const tx of transactions) {
 					if (!addresses.includes(tx.sender.address)) {
 						addresses.push(tx.sender.address);
-						const id = tx.sender.username? tx.sender.username: tx.sender.address;
-						nodes.push({data: { id: id, address: tx.sender.address }, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.sender.address}?size=50` }});
+						const label = tx.sender.username? tx.sender.username: tx.sender.address;
+						nodes.push({data: { id: tx.sender.address, label: label }, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.sender.address}?size=50` }});
 					}
 					if (!addresses.includes(tx.asset.recipient.address)) {
 						addresses.push(tx.asset.recipient.address);
-						const id = tx.asset.recipient.username? tx.asset.recipient.username: tx.asset.recipient.address;
-						nodes.push({data: { id: id, address: tx.asset.recipient.address}, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.asset.recipient.address}?size=50` }});
+						const label = tx.asset.recipient.username? tx.asset.recipient.username: tx.asset.recipient.address;
+						nodes.push({data: { id: tx.asset.recipient.address, label: label }, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.asset.recipient.address}?size=50` }});
 					}
 					if (!transfers.includes(tx.sender.address + tx.asset.recipient.address)) {
 						transfers.push(tx.sender.address + tx.asset.recipient.address);
