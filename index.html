@@ -19,11 +19,12 @@
 			position: absolute;
 			top: 0px;
 			left: 0px;
+			z-index: 10;
 		}
 		#btn-reset {
 			border-radius: 50%;
-			border-color: rgb(33, 33, 90);
-			background-color: rgb(28, 28, 136);
+			border: 1px solid rgba(28, 28, 136, 0.9);
+			background-color: rgba(28, 28, 136, 0.8);
 			color: azure;
 			width: 15vw;
 			height: 15vw;
@@ -32,21 +33,43 @@
 			min-width: 50px;
 			min-height: 50px;
 			position: fixed;
-			bottom: 10px;
+			bottom: 30px;
 			right: 10px;
-			z-index: 10000;
+			z-index: 100;
 		}
 		#btn-reset:active{
-			border-color: rgb(77, 77, 170);
-			background-color: rgb(94, 94, 207);
+			border: 1px solid rgba(94, 94, 207, 0.9);
+			background-color: rgba(94, 94, 207, 0.8);
 			color: azure;
+		}
+		#used {
+			padding: 5px;
+			position: fixed;
+			bottom: 0px;
+			left: 0px;
+			width: calc(100vw - 10px);
+			background-color: rgba(30, 30, 100, 0.9);
+			z-index: 90;
+		}
+		#used div,
+		#used a {
+			font-size: 10px;
+			color: #fff;
 		}
 	</style>
 
 	<body>
-		<div>
-			<button type='button' id='btn-reset' onclick='draw()'>Reset</button>
+		<button type='button' id='btn-reset' onclick='draw()'>Reset</button>
+		<div id='used'>
+			<div>
+				used:
+				<a href='https://github.com/cytoscape/cytoscape.js' target='_blank' rel='noopener noreferrer'>cytoscape.js</a> /
+				<a href='https://github.com/cytoscape/cytoscape.js-cola' target='_blank' rel='noopener noreferrer'>cytoscape-cola.js</a> /
+				<a href='https://github.com/tgdwyer/WebCola' target='_blank' rel='noopener noreferrer'>cola.js</a> /
+				<a href='https://github.com/tobiaslins/lisk-avatar' target='_blank' rel='noopener noreferrer'>lisk-avatar</a>
+			</div>
 		</div>
+		
 		<div id='cy'></div>
 		<script>
 			const getTransactions = async(address) => {
@@ -76,8 +99,7 @@
 								style: {
 									'label': 'data(amount)',
 									'color': '#cc0cef',
-									'width': 2,
-									'line-color': '#ccc',
+									'width': 1
 								}
 							}
 						]
@@ -123,7 +145,7 @@
 					}
 					if (!transfers.includes(tx.sender.address + tx.asset.recipient.address)) {
 						transfers.push(tx.sender.address + tx.asset.recipient.address);
-						nodes.push({data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK`}});
+						nodes.push({data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK`}, style: { 'line-color': `#${tx.id.slice(-6)}` }});
 					}
 				}
 				setCytoscape(nodes);
