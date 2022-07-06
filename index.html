@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+	<head>
+		<title></title>
+		<script src='https://unpkg.com/webcola/WebCola/cola.min.js'></script>
+		<script src='https://unpkg.com/cytoscape/dist/cytoscape.min.js'></script>
+		<script src='https://unpkg.com/cytoscape-cola@2.2.3/cytoscape-cola.js'></script>
+	</head>
+
+	<style>
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		#cy {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+		}
+		#btn-reset {
+			border-radius: 50%;
+			border-color: rgb(33, 33, 90);
+			background-color: rgb(28, 28, 136);
+			color: azure;
+			padding: 10px;
+			width: 100px;
+			height: 100px;
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			z-index: 10000;
+		}
+		#btn-reset:active{
+			border-color: rgb(77, 77, 170);
+			background-color: rgb(94, 94, 207);
+			color: azure;
+		}
+	</style>
+
+	<body>
+		<div>
+			<button type='button' id='btn-reset' onclick='draw()'>Reset</button>
+		</div>
+		<div id='cy'></div>
+		<script>
+			const getTransactions = async(address) => {
+				const urlParam = address? `&address=${address}`: '';
+			    const response = await fetch(`https://mainnet-service.lisk.com/api/v2/transactions?moduleAssetId=2:0&offset=0&limit=100${urlParam}`);
+			    const json = await response.json();
+			    if (json.error) return json;
+			    return json.data;
+			}
+
+			const setCytoscape = (data) => {
+				const cy = cytoscape({
+					container: document.getElementById('cy'),
+					elements: data,
+						style: [
+							{
+								selector: 'node',
+								style: {
+									'label': 'data(id)',
+									'color': '#0c0cef',
+									'width': 50,
+									'height': 50
+								}
+							},
+							{
+								selector: 'edge', 
+								style: {
+									'label': 'data(amount)',
+									'color': '#cc0cef',
+									'width': 3,
+									'line-color': '#ccc',
+								}
+							}
+						]
+				});
+				const layout = cy.layout({
+					name: 'cola',
+					fit: false,
+					padding: 30,
+					avoidOverlap: true,
+					nodeDimensionsIncludeLabels: true
+				});
+				layout.run();
+
+				cy.on('tap', 'node', function (evt) {
+					draw(evt.target.json().data['id']);
+				});
+
+				cy.on('tap', 'edge', function (evt) {
+					window.open(`https://liskscan.com/transaction/${evt.target.json().data['id']}`, '_blank');
+				});
+			}
+
+			const draw = async(address) => {
+				const transactions = await getTransactions(address);
+				if (transactions.error) {
+					alert(transactions.message);
+					return;
+				}
+
+				const nodes = [];
+				const addresses = [];
+				const transfers = [];
+				for (const tx of transactions) {
+					if (!addresses.includes(tx.sender.address)) {
+						addresses.push(tx.sender.address);
+						nodes.push({data: { id: tx.sender.address }, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.sender.address}?size=50` }});
+					}
+					if (!addresses.includes(tx.asset.recipient.address)) {
+						addresses.push(tx.asset.recipient.address);
+						nodes.push({data: { id: tx.asset.recipient.address}, style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.asset.recipient.address}?size=50` }});
+					}
+					if (!transfers.includes(tx.sender.address + tx.asset.recipient.address)) {
+						transfers.push(tx.sender.address + tx.asset.recipient.address);
+						nodes.push({data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK`}});
+					}
+				}
+				setCytoscape(nodes);
+			}
+
+			(async()=> {
+				await draw();
+			})();
+		</script>
+	</body>
+</html>
