@@ -12,6 +12,7 @@
 	<style>
 		body {
 			font-family: Arial, Helvetica, sans-serif;
+			background-color: rgb(5, 1, 19);
 		}
 		#cy {
 			width: 100%;
@@ -89,7 +90,7 @@
 								selector: 'node',
 								style: {
 									'label': 'data(label)',
-									'color': '#0c0cef',
+									'color': '#5caefa',
 									'width': 50,
 									'height': 50
 								}
@@ -98,8 +99,11 @@
 								selector: 'edge', 
 								style: {
 									'label': 'data(amount)',
-									'color': '#cc0cef',
-									'width': 1
+									'color': '#fa5cae',
+									'width': 2,
+									'target-arrow-shape': 'triangle',
+									'line-opacity': 0.7,
+									'curve-style': 'straight'
 								}
 							}
 						]
@@ -145,7 +149,10 @@
 					}
 					if (!transfers.includes(tx.sender.address + tx.asset.recipient.address)) {
 						transfers.push(tx.sender.address + tx.asset.recipient.address);
-						nodes.push({data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK`}, style: { 'line-color': `#${tx.id.slice(-6)}` }});
+						nodes.push({
+                            data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK`},
+                            style: { 'line-color': `#${tx.id.slice(-6)}`, 'target-arrow-color': `#${tx.id.slice(-6)}` }
+                        });
 					}
 				}
 				setCytoscape(nodes);
