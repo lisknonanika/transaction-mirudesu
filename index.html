@@ -135,8 +135,8 @@
 
 				const nodes = [];
 				const addresses = [];
+				const transfers = [];
 				for (const tx of transactions) {
-					let addEdgeFlg = false;
 					if (!addresses.includes(tx.sender.address)) {
 						addresses.push(tx.sender.address);
 						const label = tx.sender.username? tx.sender.username: tx.sender.address;
@@ -144,7 +144,6 @@
 							data: { id: tx.sender.address, label: label },
 							style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.sender.address}?size=50` }
 						});
-						addEdgeFlg = true;
 					}
 					if (!addresses.includes(tx.asset.recipient.address)) {
 						addresses.push(tx.asset.recipient.address);
@@ -153,9 +152,9 @@
 							data: { id: tx.asset.recipient.address, label: label },
 							style: { 'background-image': `https://lisk-avatar.ysdev.work/${tx.asset.recipient.address}?size=50` }
 						});
-						addEdgeFlg = true;
 					}
-					if (addEdgeFlg) {
+					if (!transfers.includes(tx.sender.address + tx.asset.recipient.address) && !transfers.includes(tx.asset.recipient.address + tx.sender.address)) {
+						transfers.push(tx.sender.address + tx.asset.recipient.address);
 						nodes.push({
 							data: { id: tx.id, source: tx.sender.address, target: tx.asset.recipient.address, amount: `${Math.floor(tx.asset.amount/1000000)/100}LSK` },
 							style: { 'line-color': `#${tx.id.slice(-6)}`, 'target-arrow-color': `#${tx.id.slice(-6)}` }
